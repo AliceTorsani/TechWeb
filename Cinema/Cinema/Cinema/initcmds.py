@@ -6,6 +6,9 @@
 from gestione.models import Utente, Film, Proiezione, Prenotazione
 import os
 from django.core.files import File
+from django.utils import timezone
+from datetime import timedelta, datetime, time
+import random
 
 def erase_db():
     print("Cancello il DB")
@@ -86,3 +89,125 @@ def init_db():
 
         # Salva il film nel database
         film.save()
+    
+    # Definizione delle liste condivise per le sale
+    num_sale = 8 # Numero totale di sale
+    #Creare un dizionario per tracciare le proiezioni per sala:
+    proiezioni_per_sala = {sala: [] for sala in range(1, num_sale + 1)}
+    film_list = Film.objects.all()
+    # Loop sui film
+    for film in film_list:
+        # Crea le proiezioni per il film
+        # Numero randomico di proiezioni per il film
+        num_proiezioni = random.randint(2, 4) #Per ogni film, scegliamo un numero casuale di proiezioni tra 2 e 4
+        proiezioni_aggiunte = 0
+        giorni_possibili = list(range(7, 10)) #distribuisco le proiezioni in un intervallo da 7 a 9 giorni.
+        random.shuffle(giorni_possibili)
+        today = timezone.now().date() #Calcolare la data di proiezione partendo da oggi.
+
+        while proiezioni_aggiunte < num_proiezioni:
+            for days_ahead in giorni_possibili:
+                if proiezioni_aggiunte >= num_proiezioni:
+                    break
+                proiezioni_per_giorno = random.randint(1, 3)  # Da 1 a 3 proiezioni per giorno
+                orari_possibili = [time(14 + i*2, 0) for i in range(3)] # Proiezioni alle 14:00, 16:00, ecc.
+                random.shuffle(orari_possibili)
+
+                for proiezione_time in orari_possibili:
+                    if proiezioni_aggiunte >= num_proiezioni:
+                        break
+                    proiezione_date = today + timedelta(days=days_ahead) #Calcolare la data di proiezione partendo da oggi.
+
+                    # Mescola le sale disponibili
+                    sale_disponibili = list(proiezioni_per_sala.keys())
+                    random.shuffle(sale_disponibili)
+
+                    # Trova una sala disponibile
+                    sala_disponibile = None
+                    for sala in sale_disponibili:
+                        sala_occupata = False
+                        for p in proiezioni_per_sala[sala]:
+                            if p['data'] == proiezione_date and p['ora_inizio'] == proiezione_time:
+                                sala_occupata = True
+                                break
+                        if sala_occupata == False:
+                        #allora è libera per questa proiezione e la assegno
+                            sala_disponibile = sala
+                            break #esco dal for sulle sale perchè ho trovato una sala libera
+                    
+                    if sala_disponibile is None:
+                        continue  # Nessuna sala disponibile per questo slot di tempo, salta questa proiezione
+                    
+                    sala_name = f"Sala {sala_disponibile}"
+                    proiezione = Proiezione(
+                        film=film,
+                        data=proiezione_date,
+                        ora_inizio=proiezione_time,
+                        sala=sala_name
+                    )
+                    proiezione.save()
+
+                     # Aggiungi la proiezione alla lista delle proiezioni per quella sala
+                    proiezioni_per_sala[sala_disponibile].append({
+                        'data': proiezione_date,
+                        'ora_inizio': proiezione_time
+                    })
+                    proiezioni_aggiunte += 1
+
+
+    # Debugging output
+    for sala, proiezioni in proiezioni_per_sala.items():
+        print(f"Proiezioni in Sala {sala}: {proiezioni}")
+
+
+
+'''
+        # Crea le proiezioni per il film
+        today = timezone.now().date() #Calcolare la data di proiezione partendo da oggi.
+        #Creare da 1 a 3 proiezioni per giorno, distribuendole in un intervallo da 7 a 9 giorni.
+        for j in range(7, 10):
+            days_ahead = j
+            proiezioni_per_giorno = 1 + j % 3  # Da 1 a 3 proiezioni per giorno
+            for k in range(proiezioni_per_giorno):
+                proiezione_date = today + timedelta(days=days_ahead)
+                proiezione_time = time(14 + k*2, 0)  # Proiezioni alle 14:00, 16:00, ecc.
+
+                # Mescola le sale disponibili
+                sale_disponibili = list(proiezioni_per_sala.keys())
+                random.shuffle(sale_disponibili)
+
+                # Trova una sala disponibile
+                sala_disponibile = None
+                for sala in sale_disponibili:
+                    sala_occupata = False
+                    for p in proiezioni_per_sala[sala]:
+                        if p['data'] == proiezione_date and p['ora_inizio'] == proiezione_time:
+                            sala_occupata = True
+                            break
+                    if sala_occupata == False:
+                    #allora è libera per questa proiezione e la assegno
+                        sala_disponibile = sala
+                        break #esco dal for sulle sale perchè ho trovato una sala libera
+                
+                if sala_disponibile is None:
+                    continue  # Nessuna sala disponibile per questo slot di tempo, salta questa proiezione
+
+                sala_name = f"Sala {sala_disponibile}"
+                proiezione = Proiezione(
+                    film=film,
+                    data=proiezione_date,
+                    ora_inizio=proiezione_time,
+                    sala=sala_name
+                )
+                proiezione.save()
+
+                # Aggiungi la proiezione alla lista delle proiezioni per quella sala
+                proiezioni_per_sala[sala_disponibile].append({
+                    'data': proiezione_date,
+                    'ora_inizio': proiezione_time
+                })
+
+    # Debugging output
+    for sala, proiezioni in proiezioni_per_sala.items():
+        print(f"Proiezioni in Sala {sala}: {proiezioni}")
+'''
