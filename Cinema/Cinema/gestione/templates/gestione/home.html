@@ -1,0 +1,44 @@
+{% extends 'basebs.html' %}
+
+{% block title %} Home di Gestione {% endblock %} 
+
+{% block header1 %}
+  <h1>Home di Gestione</h1>
+  <p>Welcome 
+    {% if user.is_authenticated %}
+     {{ user.username }}
+    {% else %}
+    Utente non registrato
+    {% endif %}
+  </p> 
+{% endblock %}
+
+{% block content %} 
+
+<h2>Cosa vuoi fare oggi?</h2>
+
+<br>
+
+<div class="list-group">
+  <a href="{% url 'gestione:cercafilm' %}" class="list-group-item list-group-item-info">Cerca un film</a>
+  <a href="{% url 'gestione:listafilm' %}" class="list-group-item list-group-item-info">Lista dei film con filtri</a>
+  <a href="{% url 'gestione:situation' %}" class="list-group-item list-group-item-info">La mia situazione</a>
+</div>
+
+<br>
+
+{% if user.is_staff %}
+<br>
+<a href="{% url 'registerg' %}" class="list-group-item list-group-item-danger">Iscrivi un gestore</a>
+<br>
+{% endif %}
+
+
+{% if "Gestori" in user.groups.all.0.name or user.is_staff %}
+<br>
+<a href="{% url 'gestione:creafilm' %}" class="list-group-item list-group-item-warning">Aggiungi un film</a>
+<br>
+{% endif %}
+
+
+{% endblock %}
