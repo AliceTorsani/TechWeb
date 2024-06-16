@@ -1,0 +1,79 @@
+{% extends 'basebs.html' %}
+
+{% block title %} Lista dei film con filtri{% endblock %} 
+
+{% block header1 %}
+  <h1>Lista dei Film con filtri</h1>
+{% endblock %}
+
+{% block content %} 
+
+    <h2> {{ view.titolo }} {{ object_list.count }} film trovati </h2>
+
+    <br>
+
+    <!-- Form di filtraggio -->
+    <form method="get">
+        <div class="form-group">
+            <label for="filter_category">Filtra per:</label>
+            <select id="filter_category" name="filter_category" class="form-control" onchange="updateFilterOptions()">
+                <option value="">Seleziona una categoria</option>
+                <option value="genere" {% if filter_category == "genere" %}selected{% endif %}>Genere</option>
+                <option value="extra" {% if filter_category == "extra" %}selected{% endif %}>Caratteristiche Extra</option>
+            </select>
+        </div>
+        <div class="form-group" id="filter_value_container" style="display:none;">
+            <label for="filter_value">Valore:</label>
+            <select id="filter_value" name="filter_value" class="form-control">
+                <!-- Opzioni specifiche verranno aggiunte tramite JavaScript -->
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtra</button>
+    </form>
+
+    <br>
+
+    <!-- Lista dei film -->
+    <ul>
+        {% for film in object_list %}
+            <li>{{ film.titolo }} ({{ film.prezzo }}) - Genere: {{ film.genere }}</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function updateFilterOptions() {
+            const filterCategory = document.getElementById('filter_category').value;
+            const filterValueContainer = document.getElementById('filter_value_container');
+            const filterValueSelect = document.getElementById('filter_value');
+
+            filterValueSelect.innerHTML = ''; // Resetta le opzioni
+
+            if (filterCategory === 'genere') {
+                filterValueContainer.style.display = 'block';
+                filterValueSelect.innerHTML = `
+                    <option value="">Seleziona un genere</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Fantascienza">Fantascienza</option>
+                    <option value="Animazione">Animazione</option>
+                    <option value="Romantico">Romantico</option>
+                    <option value="Giallo">Giallo</option>
+
+                    <!-- Aggiungi altri generi qui -->
+                `;
+            } else if (filterCategory === 'extra') {
+                filterValueContainer.style.display = 'block';
+                filterValueSelect.innerHTML = `
+                    <option value="">Seleziona una caratteristica</option>
+                    <option value="in_3D">3D</option>
+                    <option value="in_inglese">In inglese</option>
+                `;
+            } else {
+                filterValueContainer.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFilterOptions(); // Assicurati che le opzioni siano corrette al caricamento della pagina
+        });
+    </script>
+{% endblock %}
