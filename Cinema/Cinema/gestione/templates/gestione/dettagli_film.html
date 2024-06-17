@@ -1,0 +1,27 @@
+{% extends 'basebs.html' %}
+
+{% block title %}Dettagli del film{% endblock %}
+
+{% block header1 %}
+  <h1>Dettagli del film</h1>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ object.titolo }}</h1>
+        </div>
+        <div class="card-body">
+            <p><strong>Genere:</strong> {{ object.genere }}</p>
+            <p><strong>Descrizione:</strong> {{ object.descrizione }}</p>
+            <p><strong>Prezzo:</strong> €{{ object.prezzo }}</p>
+            <p><img src="{{ object.immagine.url }}" alt="{{ object.titolo }}" class="img-fluid"></p>
+            <p><strong>3D:</strong> {% if object.in_3D %}Previsto{% else %}Non previsto{% endif %}</p>
+            <p><strong>Lingua inglese:</strong> {% if object.in_inglese %}Prevista{% else %}Non prevista{% endif %}</p>
+        </div>
+    </div>
+</div>
+  
+{% endblock %}

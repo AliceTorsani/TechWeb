@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from .models import *
 
 # Create your views here.
@@ -8,7 +9,7 @@ def gestione_home(request):
     return render(request,template_name="gestione/home.html")
 
 class FilmListView(ListView):
-    titolo = "Il nostro cinema offre attualmente "
+    titolo = "Il nostro cinema offre attualmente i seguenti film: "
     model = Film
     template_name = "gestione/lista_film.html"
     context_object_name = 'object_list'
@@ -40,3 +41,16 @@ class FilmListView(ListView):
 
 def search(request):
     pass
+
+class FilmDetailView(DetailView):
+    model = Film
+    template_name = 'gestione/dettagli_film.html'
+
+class FilmProjectionsView(DetailView):
+    model = Film
+    template_name = 'gestione/proiezioni_film.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Aggiungi qui le logiche per ottenere le proiezioni del film
+        return context
