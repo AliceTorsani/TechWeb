@@ -1,15 +1,13 @@
 {% extends 'basebs.html' %}
 
-{% block title %}Proiezioni del film{% endblock %}
+{% block title %}Proiezioni di {{ film.titolo }} per la data selezionata{% endblock %}
 
 {% block header1 %}
-  <h1>Proiezioni del film</h1>
+    <h1>Proiezioni di {{ film.titolo }} per la data selezionata</h1>
 {% endblock %}
 
 {% block content %}
-    <h1>Proiezioni per {{ film.titolo }}</h1>
-    
-    <h2>Proiezioni programmate</h2>
+    <h2>Proiezioni programmate per il {{ filter_date }}</h2>
     <br>
     
     {% if proiezioni %}
@@ -30,6 +28,6 @@
             {% endfor %}
         </div>
     {% else %}
-        <p>Nessuna proiezione trovata.</p>
+        <p>Non ci sono proiezioni previste per la data selezionata.</p>
     {% endif %}
 {% endblock %}

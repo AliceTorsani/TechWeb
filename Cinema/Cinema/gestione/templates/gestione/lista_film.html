@@ -25,6 +25,7 @@
                 <option value="">Seleziona una categoria</option>
                 <option value="genere" {% if filter_category == "genere" %}selected{% endif %}>Genere</option>
                 <option value="extra" {% if filter_category == "extra" %}selected{% endif %}>Caratteristiche Extra</option>
+                <option value="data" {% if filter_category == "data" %}selected{% endif %}>Data</option>
             </select>
         </div>
         <div class="form-group" id="filter_value_container" style="display:none;">
@@ -33,37 +34,49 @@
                 <!-- Opzioni specifiche verranno aggiunte tramite JavaScript -->
             </select>
         </div>
+        <div class="form-group" id="filter_date_container" style="display:none;">
+            <label for="filter_date">Seleziona Data:</label>
+            <input type="date" id="filter_date" name="filter_date" class="form-control">
+        </div>
         <button type="submit" class="btn btn-primary">Filtra</button>
     </form>
 
     <br>
 
     <!-- Lista dei film -->
-    {% if filter_category and filter_value %}
-        {% if object_list %}
-            <div class="row">
-                {% for film in object_list %}
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ film.titolo }}</h5>
-                                <p class="card-text">
-                                    Genere: {{ film.genere }}<br>
-                                    Prezzo: €{{ film.prezzo }}
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="btn-group">
-                                        <a href="{% url 'gestione:dettagli_film' film.pk %}" class="btn btn-sm btn-outline-secondary">Dettagli</a>
-                                        <a href="{% url 'gestione:proiezioni_film' film.pk %}" class="btn btn-sm btn-outline-secondary">Proiezioni</a>
+    {% if filter_category %}
+        {% if filter_value or filter_date %} 
+            {% if object_list %}
+                <div class="row">
+                    {% for film in object_list %}
+                        <div class="col-md-4">
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ film.titolo }}</h5>
+                                    <p class="card-text">
+                                        Genere: {{ film.genere }}<br>
+                                        Prezzo: €{{ film.prezzo }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <a href="{% url 'gestione:dettagli_film' film.pk %}" class="btn btn-sm btn-outline-secondary">Dettagli</a>
+                                            {% if filter_category == 'data' and filter_date %}
+                                                <a href="{% url 'gestione:lista_proiezioni_per_data' film.pk %}?filter_date={{ filter_date }}" class="btn btn-sm btn-outline-secondary">Proiezioni per data</a>
+                                            {% else %}
+                                                <a href="{% url 'gestione:proiezioni_film' film.pk %}" class="btn btn-sm btn-outline-secondary">Proiezioni</a>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>Nessun film trovato con il filtro selezionato.</p>
+            {% endif %}
         {% else %}
-            <p>Nessun film trovato con il filtro selezionato.</p>
+            <p>Per favore, seleziona un valore per il filtro.</p>
         {% endif %}
     {% else %}
         <p>Per favore, seleziona un filtro per visualizzare i film.</p>
@@ -73,9 +86,12 @@
         function updateFilterOptions() {
             const filterCategory = document.getElementById('filter_category').value;
             const filterValueContainer = document.getElementById('filter_value_container');
+            const filterDateContainer = document.getElementById('filter_date_container');
             const filterValueSelect = document.getElementById('filter_value');
 
             filterValueSelect.innerHTML = ''; // Resetta le opzioni
+            filterDateContainer.style.display = 'none';
+            filterValueContainer.style.display = 'none';
 
             if (filterCategory === 'genere') {
                 filterValueContainer.style.display = 'block';
@@ -96,6 +112,8 @@
                     <option value="in_3D">3D</option>
                     <option value="in_inglese">In inglese</option>
                 `;
+            } else if (filterCategory === 'data') {
+                filterDateContainer.style.display = 'block';
             } else {
                 filterValueContainer.style.display = 'none';
             }
