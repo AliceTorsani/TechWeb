@@ -6,6 +6,7 @@ from django.utils import timezone
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -170,3 +171,12 @@ class FilmProiezioniPerDataView(ListView):
         context['data'] = self.kwargs['data']
         return context
         
+@login_required
+def my_situation(request):
+    utente = get_object_or_404(Utente, pk=request.user.pk)
+    prenotazioni = utente.get_prenotazioni()
+    context = {
+        'prenotazioni': prenotazioni
+    }
+    return render(request, 'gestione/my_situation.html', context)
+

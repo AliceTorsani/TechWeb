@@ -1,0 +1,28 @@
+{% extends 'basebs.html' %}
+
+{% block title %}Le mie prenotazioni{% endblock %}
+
+{% block header1 %}
+  <h1>Le mie prenotazioni</h1>
+{% endblock %}
+
+{% block content %}
+  {% if prenotazioni %}
+    <div class="row">
+      {% for prenotazione in prenotazioni %}
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">{{ prenotazione.proiezione.film.titolo }}</h5>
+              <p class="card-text">Data: {{ prenotazione.proiezione.data }}</p>
+              <p class="card-text">Ora: {{ prenotazione.proiezione.ora_inizio }}</p>
+              <p class="card-text">Sala: {{ prenotazione.proiezione.sala }}</p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Non hai effettuato nessuna prenotazione.</p>
+  {% endif %}
+{% endblock %}

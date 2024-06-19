@@ -12,4 +12,5 @@ urlpatterns = [
     path('film/<int:pk>/proiezioni/', FilmProjectionsDatesView.as_view(), name='film_proiezioni_date'),
     path('film/<int:film_id>/proiezioni_per_data/<str:data>/', FilmProiezioniPerDataView.as_view(), name='film_proiezioni_per_data'),
     path("ricerca/", search, name="cercafilm"),
+    path('my_situation/', my_situation, name='my_situation'),
 ]

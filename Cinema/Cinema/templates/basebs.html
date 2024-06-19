@@ -109,15 +109,13 @@
 
   <div class="jumbotron text-center" style="margin-bottom:0">
     {% block footer %} 
- <!--
-      {% if user.is_authenticated %} 
- -->
-      {# deprecation! https://docs.djangoproject.com/en/5.0/releases/4.1/#features-deprecated-in-4-1 #}
+
+      {% if user.is_authenticated %} {# deprecation! https://docs.djangoproject.com/en/5.0/releases/4.1/#features-deprecated-in-4-1 #}
 
       {# <a class="btn btn-info" href="{% url 'logout' %}" role="button">Logout</a> #}
 
-    {#  <form id="logout-form" method="post" action="{% url 'logout' %}">   #}
-<!--      {% csrf_token %}
+      <form id="logout-form" method="post" action="{% url 'logout' %}">   
+      {% csrf_token %}
       <button type="submit" class="btn btn-info">Log out</button>
       </form>
       </br>
@@ -127,7 +125,7 @@
       {% endif %}
 
       <a class="btn btn-warning" href="/admin/" role="button">Admin Login</a>
--->   
+   
     {%  endblock %}
   </div>
   
