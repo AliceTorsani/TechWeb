@@ -1,0 +1,40 @@
+{% extends 'basebs.html' %}
+
+{% block title %} Cerca un film{% endblock %} 
+
+{% block header1 %}
+  <h1>Cerca un film</h1>
+{% endblock %}
+
+{% block content %} 
+    <form method="GET" action="{% url 'gestione:cercafilm' %}">
+        <input type="text" name="search_title" placeholder="Cerca per titolo" value="{{ search_title }}">
+    <button type="submit">Cerca</button>
+  </form>
+  <br>
+  {% if film_not_found %}
+    <p>Nessun film trovato con il titolo "{{ search_title }}".</p>
+  {% elif film %}
+    <h2>Risultati della ricerca per:<h2><br>
+    <h2>{{ film.titolo }}</h2>
+
+    {% if proiezioni_dates %}
+      <div class="row">
+        {% for proiezione_date in proiezioni_dates %}
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title">{{ proiezione_date.data }}</h5>
+                <a href="{% url 'gestione:film_proiezioni_per_data' film.id proiezione_date.data %}" class="btn btn-primary">Visualizza proiezioni</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>Non ci sono proiezioni previste per questo film.</p>
+    {% endif %}
+  {% elif search_title %}
+    <p>Nessun film trovato con il titolo "{{ search_title }}".</p>
+  {% endif %}
+{% endblock %}

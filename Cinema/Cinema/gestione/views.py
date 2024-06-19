@@ -69,7 +69,22 @@ class FilmListView(ListView):
 
 
 def search(request):
-    pass
+    query = request.GET.get('search_title')
+    context = {'search_title': query}
+    
+    if query:
+        films = Film.objects.filter(titolo__icontains=query)
+        if films.exists():
+            film = films.first()
+            proiezioni_dates = Proiezione.objects.filter(film=film).values('data').distinct()
+            context.update({
+                'film': film,
+                'proiezioni_dates': proiezioni_dates,
+            })
+        else:
+            context['film_not_found'] = True
+    
+    return render(request, 'gestione/cerca_film.html', context)
 
 class FilmDetailView(DetailView):
     model = Film
@@ -127,3 +142,31 @@ class FilmProjectionsByDateView(TemplateView):
         context['filter_date'] = self.request.GET.get('filter_date', '')
         return context
     '''
+class FilmProjectionsDatesView(DetailView):
+    model = Film
+    template_name = 'gestione/proiezioni_date.html'
+    context_object_name = 'film'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        film = self.get_object()
+        proiezioni_dates = Proiezione.objects.filter(film=film).values('data').distinct()
+        context['proiezioni_dates'] = proiezioni_dates
+        return context
+
+class FilmProiezioniPerDataView(ListView):
+    template_name = 'gestione/proiezioni_per_data.html'
+    context_object_name = 'proiezioni'
+
+    def get_queryset(self):
+        film_id = self.kwargs['film_id']
+        data = self.kwargs['data']
+        return Proiezione.objects.filter(film_id=film_id, data=data)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        film = get_object_or_404(Film, pk=self.kwargs['film_id'])
+        context['film'] = film
+        context['data'] = self.kwargs['data']
+        return context
+        

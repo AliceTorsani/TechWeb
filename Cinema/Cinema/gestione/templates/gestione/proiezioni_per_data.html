@@ -1,0 +1,26 @@
+{% extends 'basebs.html' %}
+
+{% block title %}Proiezioni per {{ film.titolo }} il {{ data }}{% endblock %}
+
+{% block header1 %}
+  <h1>Proiezioni per {{ film.titolo }} il {{ data }}</h1>
+{% endblock %}
+
+{% block content %}
+  {% if proiezioni %}
+    <div class="row">
+      {% for proiezione in proiezioni %}
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Ora di inizio: {{proiezione.ora_inizio|date:"H:i" }}</h5>
+                <p class="card-text">Sala: {{ proiezione.sala }}</p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Non ci sono proiezioni per questa data.</p>
+  {% endif %}
+{% endblock %}
