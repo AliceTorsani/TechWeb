@@ -3,6 +3,15 @@
 #Email: admin@admin.com
 #Password: admin123!
 
+#credenziali utenti Clienti
+#Username: utente1
+#Password: Cinema123!
+
+#credenziali utenti Gestori
+#Username: gestore1
+#Password: Cinema123!
+
+
 from gestione.models import Utente, Film, Proiezione, Prenotazione
 import os
 from django.core.files import File
