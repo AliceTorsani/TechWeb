@@ -20,7 +20,9 @@
                             <p class="card-text">
                                 Data: {{ proiezione.data|date:"d/m/Y" }}<br>
                                 Ora di inizio: {{proiezione.ora_inizio|date:"H:i" }} <br>
-                                Sala: {{ proiezione.sala }}
+                                Sala: {{ proiezione.sala }} <br>
+                                Posti disponibili: {{ proiezione.posti_disponibili }} <br>
+                                <a href="{% url 'gestione:prenota_proiezione' proiezione.id %}" class="btn btn-primary">Prenota</a>
                             </p>
                         </div>
                     </div>

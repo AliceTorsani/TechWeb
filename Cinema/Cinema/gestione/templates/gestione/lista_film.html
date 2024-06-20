@@ -11,6 +11,8 @@
     <h2> {{ view.titolo }} </h2>
     {% if filter_category and filter_value %}
         <h3> {{ object_list.count }} film trovati </h3>
+    {%elif filter_category and filter_date%}
+        <h3> {{ object_list.count }} film trovati </h3>
     {% else %}
         <h3> Seleziona un filtro per visualizzare i film attualmente disponibili <h3>
     {% endif %}

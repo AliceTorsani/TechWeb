@@ -15,6 +15,8 @@
             <div class="card-body">
                 <h5 class="card-title">Ora di inizio: {{proiezione.ora_inizio|date:"H:i" }}</h5>
                 <p class="card-text">Sala: {{ proiezione.sala }}</p>
+                <p class="card-text">Posti disponibili: {{ proiezione.posti_disponibili }}</p>
+                <a href="{% url 'gestione:prenota_proiezione' proiezione.id %}" class="btn btn-primary">Prenota</a>
             </div>
           </div>
         </div>

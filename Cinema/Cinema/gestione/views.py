@@ -1,12 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from .models import *
 from django.utils import timezone
 from datetime import datetime
-from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # Create your views here.
 
@@ -179,4 +179,33 @@ def my_situation(request):
         'prenotazioni': prenotazioni
     }
     return render(request, 'gestione/my_situation.html', context)
+
+@login_required
+def prenota_proiezione(request, proiezione_id):
+    proiezione = get_object_or_404(Proiezione, pk=proiezione_id)
+    utente = request.user
+
+    # Controllo se ci sono posti disponibili
+    if proiezione.posti_disponibili <= 0:
+        messages.error(request, 'Non ci sono posti disponibili per questa proiezione.')
+        return redirect('gestione:film_proiezioni', pk=proiezione.film.pk)
+
+    # Controllo se l'utente ha già una prenotazione per la stessa data e ora
+    esiste_prenotazione = Prenotazione.objects.filter(
+        utente=utente,
+        proiezione__data=proiezione.data,
+        proiezione__ora_inizio=proiezione.ora_inizio
+    ).exists()
+    
+    if esiste_prenotazione:
+        messages.error(request, 'Hai già una prenotazione per un film in questo orario.')
+        return redirect('gestione:film_proiezioni', pk=proiezione.film.pk)
+
+    # Creazione della prenotazione
+    Prenotazione.objects.create(utente=utente, proiezione=proiezione)
+    proiezione.posti_disponibili -= 1
+    proiezione.save()
+
+    messages.success(request, 'Prenotazione effettuata con successo!')
+    return redirect('gestione:film_proiezioni', pk=proiezione.film.pk)
 
