@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 from .models import *
+from .forms import *
 from django.utils import timezone
 from datetime import datetime
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
+from django.urls import reverse_lazy
 
 # Create your views here.
 
@@ -182,6 +186,14 @@ def my_situation(request):
     }
     return render(request, 'gestione/my_situation.html', context)
 
+
+def build_redirect_url(view_name, kwargs, filter_date):
+    url = reverse(view_name, kwargs=kwargs)
+    if filter_date:
+        url += f"?filter_date={filter_date}"
+    return url
+
+
 @login_required
 def prenota_proiezione(request, proiezione_id):
     proiezione = get_object_or_404(Proiezione, pk=proiezione_id)
@@ -196,7 +208,8 @@ def prenota_proiezione(request, proiezione_id):
         if 'film_proiezioni_per_data' in next_url:
             film_id = proiezione.film.pk
             data = filter_date if filter_date else proiezione.data
-            next_url = f"{reverse('gestione:film_proiezioni_per_data', kwargs={'film_id': film_id, 'data': data})}?filter_date={filter_date}"
+            next_url = build_redirect_url('gestione:film_proiezioni_per_data', {'film_id': film_id, 'data': data}, filter_date)
+            #next_url = f"{reverse('gestione:film_proiezioni_per_data', kwargs={'film_id': film_id, 'data': data})}?filter_date={data}"
         elif 'lista_proiezioni_per_data' in next_url:
             film_id = proiezione.film.pk
             next_url = f"{reverse('gestione:lista_proiezioni_per_data', kwargs={'pk': film_id})}?filter_date={filter_date}"
@@ -211,15 +224,15 @@ def prenota_proiezione(request, proiezione_id):
         messages.error(request, 'Non ci sono posti disponibili per questa proiezione.')
         return redirect(next_url)
 
-    # Controllo se l'utente ha già una prenotazione per la stessa data e ora
+    # Controllo se l'utente ha già una prenotazione per la stessa data e ora in una sala differente
     esiste_prenotazione = Prenotazione.objects.filter(
         utente=utente,
         proiezione__data=proiezione.data,
-        proiezione__ora_inizio=proiezione.ora_inizio
-    ).exists()
+        proiezione__ora_inizio=proiezione.ora_inizio,
+    ).exclude(proiezione__sala=proiezione.sala).exists()
     
     if esiste_prenotazione:
-        messages.error(request, 'Hai già una prenotazione per un film in questo orario.')
+        messages.error(request, 'Prenotazione fallita. Hai già una prenotazione alla stessa ora per un\'altra proiezione in una sala differente.')
         return redirect(next_url)
 
     # Creazione della prenotazione
@@ -229,4 +242,18 @@ def prenota_proiezione(request, proiezione_id):
 
     messages.success(request, 'Prenotazione effettuata con successo!')
     return redirect(next_url)
+
+#Views per soli Gestori
+class CreateFilmView(LoginRequiredMixin, CreateView):
+    group_required = ["Gestori"]
+    title = "Aggiungi un film al cinema"
+    form_class = CreateFilmForm
+    template_name = "gestione/create_entry.html"
+    success_url = reverse_lazy("gestione:home")
+
+class CreateProiezioneView(CreateFilmView):
+    title = "Aggiungi una Proiezione ad un film"
+    form_class = CreateProiezioneForm
+
+
 

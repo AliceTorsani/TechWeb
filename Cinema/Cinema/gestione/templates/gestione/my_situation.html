@@ -14,8 +14,8 @@
           <div class="card mb-4">
             <div class="card-body">
               <h5 class="card-title">{{ prenotazione.proiezione.film.titolo }}</h5>
-              <p class="card-text">Data: {{ prenotazione.proiezione.data }}</p>
-              <p class="card-text">Ora: {{ prenotazione.proiezione.ora_inizio }}</p>
+              <p class="card-text">Data: {{ prenotazione.proiezione.data|date:"d/m/Y" }}</p>
+              <p class="card-text">Ora: {{ prenotazione.proiezione.ora_inizio|date:"H:i" }}</p>
               <p class="card-text">Sala: {{ prenotazione.proiezione.sala }}</p>
             </div>
           </div>

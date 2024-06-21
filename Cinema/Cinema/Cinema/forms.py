@@ -15,7 +15,11 @@ class CreaUtenteCliente(UserCreationForm):
         return user #restituisco quello che il metodo padre di questo metodo avrebbe restituito.
 
 class CreaUtenteGestore(UserCreationForm):
-    
+
+    class Meta:
+        model = Utente
+        fields = ('username', 'password1', 'password2')
+
     def save(self, commit=True):
         user = super().save(commit) 
         g = Group.objects.get(name="Gestori") 

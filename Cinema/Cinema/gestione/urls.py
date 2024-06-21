@@ -14,4 +14,7 @@ urlpatterns = [
     path("ricerca/", search, name="cercafilm"),
     path('my_situation/', my_situation, name='my_situation'),
     path('prenota_proiezione/<int:proiezione_id>/', prenota_proiezione, name='prenota_proiezione'),
+
+    path("crea_film/",CreateFilmView.as_view(),name="creafilm"),
+    path("crea_proiezione/",CreateProiezioneView.as_view(),name="creaproiezione"),
 ]
