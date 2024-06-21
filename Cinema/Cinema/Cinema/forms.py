@@ -1,7 +1,12 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
+from gestione.models import Utente
 
 class CreaUtenteCliente(UserCreationForm):
+
+    class Meta:
+        model = Utente
+        fields = ('username', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit) #ottengo un riferimento all'utente

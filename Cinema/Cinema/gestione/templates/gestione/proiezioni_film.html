@@ -24,7 +24,7 @@
                                 Ora di inizio: {{proiezione.ora_inizio|date:"H:i" }} <br>
                                 Sala: {{ proiezione.sala }} <br>
                                 Posti disponibili: {{ proiezione.posti_disponibili }} <br>
-                                <a href="{% url 'gestione:prenota_proiezione' proiezione.id %}" class="btn btn-primary">Prenota</a>
+                                <a href="{% url 'gestione:prenota_proiezione' proiezione.id %}?next={% url 'gestione:proiezioni_film' film.pk %}" class="btn btn-primary">Prenota</a>
                             </p>
                         </div>
                     </div>

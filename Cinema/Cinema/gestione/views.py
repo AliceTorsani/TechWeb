@@ -7,6 +7,7 @@ from datetime import datetime
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 
 # Create your views here.
 
@@ -156,6 +157,7 @@ class FilmProjectionsDatesView(DetailView):
         return context
 
 class FilmProiezioniPerDataView(ListView):
+    model = Proiezione
     template_name = 'gestione/proiezioni_per_data.html'
     context_object_name = 'proiezioni'
 
@@ -185,10 +187,29 @@ def prenota_proiezione(request, proiezione_id):
     proiezione = get_object_or_404(Proiezione, pk=proiezione_id)
     utente = request.user
 
+    # Recuperiamo i parametri GET
+    next_url = request.GET.get('next')
+    filter_date = request.GET.get('filter_date')
+    
+    # Costruisci l'URL di reindirizzamento
+    if next_url:
+        if 'film_proiezioni_per_data' in next_url:
+            film_id = proiezione.film.pk
+            data = filter_date if filter_date else proiezione.data
+            next_url = f"{reverse('gestione:film_proiezioni_per_data', kwargs={'film_id': film_id, 'data': data})}?filter_date={filter_date}"
+        elif 'lista_proiezioni_per_data' in next_url:
+            film_id = proiezione.film.pk
+            next_url = f"{reverse('gestione:lista_proiezioni_per_data', kwargs={'pk': film_id})}?filter_date={filter_date}"
+        elif 'proiezioni_film' in next_url:
+            film_id = proiezione.film.pk
+            next_url = reverse('gestione:proiezioni_film', kwargs={'pk': film_id})
+    else:
+        next_url = reverse('gestione:home')  # Default redirection to home if next is not provided
+
     # Controllo se ci sono posti disponibili
     if proiezione.posti_disponibili <= 0:
         messages.error(request, 'Non ci sono posti disponibili per questa proiezione.')
-        return redirect('gestione:film_proiezioni', pk=proiezione.film.pk)
+        return redirect(next_url)
 
     # Controllo se l'utente ha già una prenotazione per la stessa data e ora
     esiste_prenotazione = Prenotazione.objects.filter(
@@ -199,7 +220,7 @@ def prenota_proiezione(request, proiezione_id):
     
     if esiste_prenotazione:
         messages.error(request, 'Hai già una prenotazione per un film in questo orario.')
-        return redirect('gestione:film_proiezioni', pk=proiezione.film.pk)
+        return redirect(next_url)
 
     # Creazione della prenotazione
     Prenotazione.objects.create(utente=utente, proiezione=proiezione)
@@ -207,5 +228,5 @@ def prenota_proiezione(request, proiezione_id):
     proiezione.save()
 
     messages.success(request, 'Prenotazione effettuata con successo!')
-    return redirect('gestione:film_proiezioni', pk=proiezione.film.pk)
+    return redirect(next_url)
 

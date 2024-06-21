@@ -16,7 +16,7 @@
                 <h5 class="card-title">Ora di inizio: {{proiezione.ora_inizio|date:"H:i" }}</h5>
                 <p class="card-text">Sala: {{ proiezione.sala }}</p>
                 <p class="card-text">Posti disponibili: {{ proiezione.posti_disponibili }}</p>
-                <a href="{% url 'gestione:prenota_proiezione' proiezione.id %}" class="btn btn-primary">Prenota</a>
+                <a href="{% url 'gestione:prenota_proiezione' proiezione.id %}?next={% url 'gestione:film_proiezioni_per_data' film.pk data %}&filter_date={{ data }}" class="btn btn-primary">Prenota</a>
             </div>
           </div>
         </div>
