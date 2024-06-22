@@ -85,6 +85,9 @@
     {% endif %}
 
     <script>
+
+        const generi = JSON.parse('{{ generi|escapejs|safe }}');
+
         function updateFilterOptions() {
             const filterCategory = document.getElementById('filter_category').value;
             const filterValueContainer = document.getElementById('filter_value_container');
@@ -107,6 +110,13 @@
 
                     <!-- Aggiungi altri generi qui -->
                 `;
+/*
+                let options = `<option value="">Seleziona un genere</option>`;
+                generi.forEach(genere => {
+                    options += `<option value="${genere}">${genere}</option>`;
+                });
+                filterValueSelect.innerHTML = options;
+*/
             } else if (filterCategory === 'extra') {
                 filterValueContainer.style.display = 'block';
                 filterValueSelect.innerHTML = `

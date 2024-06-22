@@ -68,6 +68,7 @@ class FilmListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['generi'] = list(Film.objects.values_list('genere', flat=True).distinct())
         context['filter_category'] = self.request.GET.get('filter_category', '')
         context['filter_value'] = self.request.GET.get('filter_value', '')
         context['filter_date'] = self.request.GET.get('filter_date', '')
@@ -251,9 +252,20 @@ class CreateFilmView(LoginRequiredMixin, CreateView):
     template_name = "gestione/create_entry.html"
     success_url = reverse_lazy("gestione:home")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "Il film è stato aggiunto con successo!")
+        return response
+
 class CreateProiezioneView(CreateFilmView):
     title = "Aggiungi una Proiezione ad un film"
     form_class = CreateProiezioneForm
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "La proiezione è stata aggiunta con successo!")
+        return response
+
 
 
 

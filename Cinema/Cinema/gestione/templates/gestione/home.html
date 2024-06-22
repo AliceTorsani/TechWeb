@@ -38,6 +38,7 @@
 {% if "Gestori" in user.groups.all.0.name or user.is_staff %}
 <br>
 <a href="{% url 'gestione:creafilm' %}" class="list-group-item list-group-item-warning">Aggiungi un film</a>
+<a href="{% url 'gestione:creaproiezione' %}" class="list-group-item list-group-item-warning">Aggiungi una proiezione</a>
 <br>
 {% endif %}
 
