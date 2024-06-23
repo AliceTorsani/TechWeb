@@ -8,7 +8,7 @@ from django.utils import timezone
 from datetime import datetime
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -52,7 +52,7 @@ class FilmListView(ListView):
             except ValueError:
                 #queryset = queryset.none()
                 print("Problemi nel filtraggio per data")
-        return queryset        
+        return queryset       
         '''
         if filter_category and filter_value:
             if filter_category == 'genere':
@@ -149,17 +149,7 @@ class FilmProjectionsByDateView(TemplateView):
         context['filter_date'] = self.request.GET.get('filter_date', '')
         return context
     '''
-class FilmProjectionsDatesView(DetailView):
-    model = Film
-    template_name = 'gestione/proiezioni_date.html'
-    context_object_name = 'film'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        film = self.get_object()
-        proiezioni_dates = Proiezione.objects.filter(film=film).values('data').distinct()
-        context['proiezioni_dates'] = proiezioni_dates
-        return context
 
 class FilmProiezioniPerDataView(ListView):
     model = Proiezione
@@ -245,7 +235,7 @@ def prenota_proiezione(request, proiezione_id):
     return redirect(next_url)
 
 #Views per soli Gestori
-class CreateFilmView(LoginRequiredMixin, CreateView):
+class CreateFilmView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     group_required = ["Gestori"]
     title = "Aggiungi un film al cinema"
     form_class = CreateFilmForm
@@ -256,6 +246,9 @@ class CreateFilmView(LoginRequiredMixin, CreateView):
         response = super().form_valid(form)
         messages.success(self.request, "Il film è stato aggiunto con successo!")
         return response
+    
+    def test_func(self):
+        return self.request.user.groups.filter(name='Gestori').exists()
 
 class CreateProiezioneView(CreateFilmView):
     title = "Aggiungi una Proiezione ad un film"
