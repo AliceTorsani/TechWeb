@@ -25,6 +25,26 @@ class CreateProiezioneForm(forms.ModelForm):
     class Meta:
         model = Proiezione
         fields = ["data", "ora_inizio", "film", "sala", "posti_disponibili"]
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        data = cleaned_data.get("data")
+        ora_inizio = cleaned_data.get("ora_inizio")
+        sala = cleaned_data.get("sala")
+
+        if data and ora_inizio and sala:
+            overlapping_proiezioni = Proiezione.objects.filter(
+                data=data,
+                ora_inizio=ora_inizio,
+                sala=sala
+            )
+            if overlapping_proiezioni.exists():
+                raise ValidationError(
+                    "Esiste già una proiezione nella sala selezionata alla data e ora specificate."
+                )
+
+        return cleaned_data
+
 
     def clean_data(self):
         data = self.cleaned_data.get("data")
