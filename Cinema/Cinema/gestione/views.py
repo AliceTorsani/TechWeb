@@ -234,6 +234,12 @@ def prenota_proiezione(request, proiezione_id):
     messages.success(request, 'Prenotazione effettuata con successo!')
     return redirect(next_url)
 
+@login_required
+def film_consigliati_view(request):
+    utente = request.user
+    film_consigliati = utente.get_film_consigliati()
+    return render(request, 'gestione/film_consigliati.html', {'film_consigliati': film_consigliati})
+
 #Views per soli Gestori
 class CreateFilmView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     group_required = ["Gestori"]

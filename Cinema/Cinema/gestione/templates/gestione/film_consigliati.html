@@ -1,0 +1,37 @@
+{% extends 'basebs.html' %}
+
+{% block title %} Film Consigliati per Te {% endblock %}
+
+{% block header1 %}
+  <h1> Film Consigliati per Te </h1>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Film Consigliati per Te</h1>
+    <div class="row">
+        {% for film in film_consigliati %}
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <img src="{{ film.immagine.url }}" class="card-img-top" alt="{{ film.titolo }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ film.titolo }}</h5>
+                        <p class="card-text">{{ film.descrizione }}</p>
+                        <p class="card-text"><strong>Genere:</strong> {{ film.genere }}</p>
+                        <p class="card-text"><strong>Prezzo:</strong> €{{ film.prezzo }}</p>
+                        {% if film.in_3D %}
+                            <p class="card-text"><strong>3D</strong></p>
+                        {% endif %}
+                        {% if film.in_inglese %}
+                            <p class="card-text"><strong>In Inglese</strong></p>
+                        {% endif %}
+                        <a href="{% url 'gestione:dettagli_film' film.id %}" class="btn btn-primary">Dettagli</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Non ci sono film consigliati al momento.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
