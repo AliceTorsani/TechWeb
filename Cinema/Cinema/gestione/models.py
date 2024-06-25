@@ -42,18 +42,34 @@ class Utente(AbstractUser):
 
         for idx, prenotazione in enumerate(prenotazioni):
             film = prenotazione.proiezione.film
-            query = Q(genere=film.genere)
-            if film.in_3D:
-                query |= Q(in_3D=True)
-            if film.in_inglese:
-                query |= Q(in_inglese=True)
 
+            # Calcola i limiti per genere e extra
             # Decrementa gradualmente il numero di film consigliati per prenotazioni meno recenti
             limit = max(max_weight - int(idx * step), 1)
-            similar_films = get_similar_films(query, film_acquistati_ids, limit)
-            film_consigliati.extend(similar_films)#Aggiungi in coda alla lista
-            film_acquistati_ids.extend([f.id for f in similar_films])
+            half_limit = limit // 2
+            genre_limit = half_limit + 1 if limit % 2 != 0 else half_limit
+            extra_limit = half_limit
 
+            # Prima query per film dello stesso genere
+            genre_query = Q(genere=film.genere)
+            similar_genre_films = get_similar_films(genre_query, film_acquistati_ids, genre_limit)
+
+            # Aggiungi i film dello stesso genere alla lista dei consigliati
+            film_consigliati.extend(similar_genre_films) #Aggiungi in coda alla lista
+            film_acquistati_ids.extend([f.id for f in similar_genre_films])
+
+            # Seconda query per film con gli stessi extra (3D o inglese), esclusi quelli già inclusi
+            extra_query = Q()
+            if film.in_3D:
+                extra_query |= Q(in_3D=True)
+            if film.in_inglese:
+                extra_query |= Q(in_inglese=True)
+
+            if extra_query:
+                similar_extra_films = get_similar_films(extra_query, film_acquistati_ids, extra_limit)
+                film_consigliati.extend(similar_extra_films) #Aggiungi in coda alla lista
+                film_acquistati_ids.extend([f.id for f in similar_extra_films])
+                
         # Limita il numero totale di film consigliati
         return film_consigliati[:num_films_to_recommend]
 
