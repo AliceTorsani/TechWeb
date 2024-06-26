@@ -48,7 +48,7 @@ class CreateProiezioneForm(forms.ModelForm):
 
     def clean_data(self):
         data = self.cleaned_data.get("data")
-        if data < date.today():
+        if data and data < date.today():
             raise ValidationError("La data della proiezione deve essere futura.")
         return data
     
