@@ -83,7 +83,8 @@ def search(request):
         films = Film.objects.filter(titolo__icontains=query)
         if films.exists():
             film = films.first()
-            proiezioni_dates = Proiezione.objects.filter(film=film).values('data').distinct()
+            # Filtra le proiezioni con data presente o futura
+            proiezioni_dates = Proiezione.objects.filter(film=film, data__gte=date.today()).values('data').distinct()
             context.update({
                 'film': film,
                 'proiezioni_dates': proiezioni_dates,
@@ -104,7 +105,7 @@ class FilmProjectionsView(ListView):
 
     def get_queryset(self):
         film_id = self.kwargs['pk']
-        today = timezone.now()
+        today = date.today() 
         return Proiezione.objects.filter(film_id=film_id, data__gte=today)
 
     def get_context_data(self, **kwargs):
@@ -122,8 +123,13 @@ class FilmProjectionsByDateView(TemplateView):
 
         try:
             date = datetime.strptime(filter_date, "%Y-%m-%d")
-            # Ottieni le proiezioni per il film e la data specificata
-            proiezioni = Proiezione.objects.filter(film=film, data=date)
+            if date < date.today():
+                # Se la data è nel passato non mostro nessuna proiezione
+                proiezioni = Proiezione.objects.none()
+            else:
+                # Se la data è nel futuro o è oggi
+                # Ottieni le proiezioni per il film e la data specificata
+                proiezioni = Proiezione.objects.filter(film=film, data=date)
         except (ValueError, TypeError):
             proiezioni = Proiezione.objects.none()
 
@@ -159,6 +165,9 @@ class FilmProiezioniPerDataView(ListView):
     def get_queryset(self):
         film_id = self.kwargs['film_id']
         data = self.kwargs['data']
+        # Verifica che la data sia presente o futura
+        if data < str(date.today()):
+            return Proiezione.objects.none()  # Nessuna proiezione se la data è nel passato
         return Proiezione.objects.filter(film_id=film_id, data=data)
 
     def get_context_data(self, **kwargs):
