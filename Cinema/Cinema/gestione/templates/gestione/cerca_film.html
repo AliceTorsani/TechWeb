@@ -24,7 +24,7 @@
           <div class="col-md-4">
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">{{ proiezione_date.data }}</h5>
+                <h5 class="card-title">{{ proiezione_date.data|date:"d/m/Y" }}</h5>
                 <a href="{% url 'gestione:film_proiezioni_per_data' film.id proiezione_date.data %}" class="btn btn-primary">Visualizza proiezioni</a>
               </div>
             </div>

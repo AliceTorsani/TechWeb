@@ -53,18 +53,7 @@ class FilmListView(ListView):
                 #queryset = queryset.none()
                 print("Problemi nel filtraggio per data")
         return queryset       
-        '''
-        if filter_category and filter_value:
-            if filter_category == 'genere':
-                queryset = queryset.filter(genere__icontains=filter_value)
-            elif filter_category == 'extra':
-                if filter_value == 'in_3D':
-                    queryset = queryset.filter(in_3D=True)
-                elif filter_value == 'in_inglese':
-                    queryset = queryset.filter(in_inglese=True)
 
-        return queryset
-        '''
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,24 +126,6 @@ class FilmProjectionsByDateView(TemplateView):
         context['filter_date'] = filter_date
         context['proiezioni'] = proiezioni
         return context
-
-    '''
-    def get_queryset(self):
-        film_id = self.kwargs['pk']
-        filter_date = self.request.GET.get('filter_date')
-        
-        if filter_date:
-            filter_date_dt = datetime.strptime(filter_date, '%Y-%m-%d')
-            return Proiezione.objects.filter(film_id=film_id, data__date=filter_date_dt)
-        else:
-            return Proiezione.objects.none()
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['film'] = Film.objects.get(pk=self.kwargs['pk'])
-        context['filter_date'] = self.request.GET.get('filter_date', '')
-        return context
-    '''
 
 
 class FilmProiezioniPerDataView(ListView):
