@@ -51,6 +51,66 @@ class CreateProiezioneFormTest(TestCase):
         except ValidationError:
             self.fail("clean_data() raised ValidationError unexpectedly!")
         #self.assertEqual(form.clean_data(), date.today() + timedelta(days=1))
+
+    def test_clean_overlapping_proiezione(self):
+        # Crea un film di esempio
+        film = Film.objects.create(
+            titolo="Blade Runner",
+            prezzo=10.0 
+        )
+        data = date.today()
+        ora_inizio = time(14, 0)
+        sala = "Sala 3"
+
+        # Crea una proiezione che si sovrappone
+        Proiezione.objects.create(
+            film=film,
+            data=data,
+            ora_inizio=ora_inizio,
+            sala=sala
+        )
+
+        form_data = self.data_obbligatori.copy()
+        form_data['data'] = data
+        form = CreateProiezioneForm(data=form_data)
+        form.cleaned_data = form_data  # Imposta cleaned_data per simulare la validazione
+
+        with self.assertRaises(ValidationError) as context:
+            form.clean()
+
+        self.assertEqual(
+            str(context.exception),
+            "['Esiste già una proiezione nella sala selezionata alla data e ora specificate.']"
+        )
+
+    def test_clean_non_overlapping_proiezione(self):
+        # Crea un film di esempio
+        film = Film.objects.create(
+            titolo="Blade Runner",
+            prezzo=10.0 
+        )
+        data = date.today() + timedelta(days=1)  # data diversa
+        ora_inizio = time(14, 0)
+        sala = "Sala 3"
+
+        # Crea una proiezione non sovrapposta
+        Proiezione.objects.create(
+            film=film,
+            data=date.today(),  # data diversa
+            ora_inizio=ora_inizio,
+            sala=sala
+        )
+
+        form_data = self.data_obbligatori.copy()
+        form_data['data'] = data
+        form = CreateProiezioneForm(data=form_data)
+        form.cleaned_data = form_data  # Imposta cleaned_data per simulare la validazione
+
+        try:
+            cleaned_data = form.clean()
+            self.assertEqual(cleaned_data['data'], data)
+        except ValidationError:
+            self.fail("clean() raised ValidationError unexpectedly!")
         
 class FilmProjectionsViewTest(TestCase):
 
