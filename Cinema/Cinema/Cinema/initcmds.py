@@ -4,12 +4,13 @@
 #Password: admin123!
 
 #credenziali utenti Clienti
-#Username: utente1
-#Password: Cinema123!
+#Username: utente1              Username: utente2           Username: utente3
+#Password: Cinema123!           Password: Cinema123!        Password: Cinema123!
 
 #credenziali utenti Gestori
-#Username: gestore1
-#Password: Cinema123!
+#Username: gestore1             Username: gestore2          Username: gestore3
+#Password: Cinema123!           Password: Cinema123!        Password: Cinema123!
+# Gli utenti sopra elencati sono stati creati e utilizzati al fine di testare le funzionalità dell'applicazione  
 
 
 from gestione.models import Utente, Film, Proiezione, Prenotazione

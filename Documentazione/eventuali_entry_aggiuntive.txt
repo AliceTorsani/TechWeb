@@ -1,0 +1,33 @@
+Questo file contiene delle eventuali entry aggiuntive da inserire nel database nel caso in cui un utente gestore voglia aggiungere nuovi Film nel database.
+
+-Film1
+
+Titolo: The Dark Knight
+Genere: Azione
+Descrizione: Batman fa fronte alla crescente criminalità di Gotham City affrontando il Joker, un criminale psicopatico che getta la città nel caos.
+Prezzo: 13.0
+Immagine: The_Dark_Knight.jpeg
+In_3D: True
+In_Inglese: True
+
+-Film2
+
+Titolo: Die Hard - Trappola di Cristallo
+Genere: Azione
+Descrizione: Un poliziotto di New York si ritrova intrappolato in un grattacielo di Los Angeles, dove un gruppo di terroristi ha preso in ostaggio i presenti durante una festa natalizia.
+Prezzo: 10.0
+Immagine: Die_Hard.jpeg
+In_3D: False
+In_Inglese: True
+
+-Film3
+
+Titolo: Gladiatore
+Genere: Azione
+Descrizione: Un generale romano viene tradito e ridotto in schiavitù, ma combatte come gladiatore per vendicarsi dell'imperatore che ha ucciso la sua famiglia.
+Prezzo: 10.0
+Immagine: Gladiatore.jpeg
+In_3D: False
+In_Inglese: False
+
+
