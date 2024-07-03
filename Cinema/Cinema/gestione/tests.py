@@ -3,8 +3,9 @@ from django.core.exceptions import ValidationError
 from datetime import date, timedelta, time
 from .forms import CreateProiezioneForm 
 from django.urls import reverse
+from django.contrib.messages import get_messages
 from django.utils import timezone
-from .models import Film, Proiezione
+from .models import Film, Proiezione, Utente, Prenotazione
 
 # Create your tests here.
 
@@ -183,3 +184,107 @@ class FilmProjectionsViewTest(TestCase):
         self.assertNotIn(self.proiezione_passata, response.context['object_list'])
 
 
+class PrenotaProiezioneViewTest(TestCase):
+
+    def setUp(self):
+        # Crea un utente di test
+        self.user = Utente.objects.create_user(username='testuser', password='12345')
+        
+        # Crea un film di esempio
+        self.film = Film.objects.create(titolo="Blade Runner", prezzo=10.0)
+        
+        # Crea una proiezione di esempio
+        self.data = date.today() + timedelta(days=1)
+        self.ora_inizio = time(14, 0)
+        self.sala = "Sala 1"
+        self.proiezione = Proiezione.objects.create(
+            film=self.film, data=self.data, ora_inizio=self.ora_inizio, sala=self.sala, posti_disponibili=10
+        )
+
+    def test_accesso_non_autorizzato(self):
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        self.assertRedirects(response, f'/login/?auth=notok&next=/gestione/prenota_proiezione/{self.proiezione.pk}/')
+
+    def test_proiezione_inesistente(self):
+        self.client.login(username='testuser', password='12345')
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[999999])) # ID inesistente
+        self.assertEqual(response.status_code, 404)
+
+    def test_nessun_posto_disponibile(self):
+        self.proiezione.posti_disponibili = 0
+        self.proiezione.save()
+        self.client.login(username='testuser', password='12345')
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(str(messages[0]), 'Non ci sono posti disponibili per questa proiezione.')
+        self.assertRedirects(response, reverse('gestione:home'))
+
+    def test_prenotazione_riuscita(self):
+        self.client.login(username='testuser', password='12345')
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        self.assertRedirects(response, reverse('gestione:home'))
+        self.proiezione.refresh_from_db()
+        self.assertEqual(self.proiezione.posti_disponibili, 9)
+        self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(str(messages[0]), 'Prenotazione effettuata con successo!')
+
+    def test_prenotazione_con_next_lista_proiezioni(self):
+        self.client.login(username='testuser', password='12345')
+        next_url = reverse('gestione:lista_proiezioni_per_data', args=[self.film.pk])
+        response = self.client.get(f'{reverse("gestione:prenota_proiezione", args=[self.proiezione.pk])}?next={next_url}&filter_date={self.data}')
+        self.assertRedirects(response, next_url)
+        self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
+
+    def test_prenotazione_con_next_proiezioni_film(self):
+        self.client.login(username='testuser', password='12345')
+        next_url = reverse('gestione:proiezioni_film', args=[self.film.pk])
+        response = self.client.get(f'{reverse("gestione:prenota_proiezione", args=[self.proiezione.pk])}?next={next_url}')
+        self.assertRedirects(response, next_url)
+        self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
+
+    def test_prenotazione_multiple_per_utente(self):
+        self.client.login(username='testuser', password='12345')
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        self.assertRedirects(response, reverse('gestione:home'))
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        self.assertRedirects(response, reverse('gestione:home'))
+        self.assertEqual(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).count(), 2)
+
+    def test_prenotazione_in_sala_differente_stessa_ora(self):
+        self.client.login(username='testuser', password='12345')
+        # Crea una prenotazione per una proiezione in una sala differente alla stessa ora
+        proiezione2 = Proiezione.objects.create(
+            film=self.film,
+            data=self.proiezione.data,
+            ora_inizio=self.proiezione.ora_inizio,
+            sala="Sala 2",
+            posti_disponibili=10
+        )
+        # Creazione di una prenotazione per la seconda proiezione
+        Prenotazione.objects.create(
+            utente=self.user,
+            proiezione=proiezione2
+        )
+        # Tenta di prenotare la prima proiezione
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        # Verifica che l'utente riceva un messaggio di errore
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(str(messages[0]), "Prenotazione fallita. Hai già una prenotazione alla stessa ora per un'altra proiezione in una sala differente.")
+        self.assertRedirects(response, reverse('gestione:home'))
+        self.assertEqual(Prenotazione.objects.filter(utente=self.user).count(), 1)
+        # Verifica che la prenotazione non sia stata creata
+        self.assertFalse(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
+
+    def test_prenotazione_con_film_proiezioni_per_data_con_filter_date(self):
+        self.client.login(username='testuser', password='12345')
+        next_url = reverse('gestione:film_proiezioni_per_data', kwargs={'film_id': self.film.pk, 'data': self.data})
+        response = self.client.get(f'{reverse("gestione:prenota_proiezione", args=[self.proiezione.pk])}?next={next_url}&filter_date={self.data}')
+        self.assertRedirects(response, next_url)
+        self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
+
+    def test_prenotazione_senza_next_url(self):
+        self.client.login(username='testuser', password='12345')
+        response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        self.assertRedirects(response, reverse('gestione:home'))
+        self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
