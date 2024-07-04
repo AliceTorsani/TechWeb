@@ -1,4 +1,6 @@
-Progetto di Tecnologie Web di Alice Torsani, matricola 164915
+Progetto di Tecnologie Web di Alice Torsani,
+
+ matricola 164915
 
 Gestione sistema di prenotazioni di un cinema
 
@@ -6,7 +8,7 @@ Il sistema permette di utilizzare un servizio di prenotazioni e visualizzazione 
 
 Nella cartella Documentazione si può trovare tutta la documentazione allegata al progetto, in particolare il file Tesina.pdf espone una panoramica degli aspetti principali legati alla documentazione del sistema.
 
-La cartella Cinema contiene tutto l'applicativo.
+La cartella Cinema contiene tutto l'applicativo. 
 
 Prerequisiti
 
