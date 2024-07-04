@@ -9,7 +9,6 @@ def Cinema_home(request):
     return render(request, template_name="home.html")
 
 class UserCreateView(CreateView):
-    #form_class = UserCreationForm
     form_class = CreaUtenteCliente
     template_name = "user_create.html"
     success_url = reverse_lazy("login")

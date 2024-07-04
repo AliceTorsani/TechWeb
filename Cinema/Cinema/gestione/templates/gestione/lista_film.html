@@ -33,7 +33,6 @@
         <div class="form-group" id="filter_value_container" style="display:none;">
             <label for="filter_value">Valore:</label>
             <select id="filter_value" name="filter_value" class="form-control">
-                <!-- Opzioni specifiche verranno aggiunte tramite JavaScript -->
             </select>
         </div>
         <div class="form-group" id="filter_date_container" style="display:none;">
@@ -109,13 +108,6 @@
                     <option value="Giallo">Giallo</option>
                     <option value="Azione">Azione</option>
                 `;
-/*
-                let options = `<option value="">Seleziona un genere</option>`;
-                generi.forEach(genere => {
-                    options += `<option value="${genere}">${genere}</option>`;
-                });
-                filterValueSelect.innerHTML = options;
-*/
             } else if (filterCategory === 'extra') {
                 filterValueContainer.style.display = 'block';
                 filterValueSelect.innerHTML = `
@@ -131,7 +123,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            updateFilterOptions(); // Assicurati che le opzioni siano corrette al caricamento della pagina
+            updateFilterOptions(); // Mi assicuro che le opzioni siano corrette al caricamento della pagina
         });
     </script>
 {% endblock %}

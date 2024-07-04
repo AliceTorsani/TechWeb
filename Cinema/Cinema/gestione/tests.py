@@ -39,7 +39,6 @@ class CreateProiezioneFormTest(TestCase):
             self.assertEqual(cleaned_data, date.today())
         except ValidationError:
             self.fail("clean_data() raised ValidationError unexpectedly!")
-        #self.assertEqual(form.clean_data(), date.today())
 
     def test_clean_data_future_date(self):
         form_data = self.data_obbligatori.copy()
@@ -51,7 +50,6 @@ class CreateProiezioneFormTest(TestCase):
             self.assertEqual(cleaned_data, date.today() + timedelta(days=1))
         except ValidationError:
             self.fail("clean_data() raised ValidationError unexpectedly!")
-        #self.assertEqual(form.clean_data(), date.today() + timedelta(days=1))
 
     def test_clean_overlapping_proiezione(self):
         # Crea un film di esempio

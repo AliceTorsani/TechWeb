@@ -119,9 +119,7 @@
   <div class="jumbotron text-center" style="margin-bottom:0">
     {% block footer %} 
 
-      {% if user.is_authenticated %} {# deprecation! https://docs.djangoproject.com/en/5.0/releases/4.1/#features-deprecated-in-4-1 #}
-
-      {# <a class="btn btn-info" href="{% url 'logout' %}" role="button">Logout</a> #}
+      {% if user.is_authenticated %}
 
       <form id="logout-form" method="post" action="{% url 'logout' %}">   
       {% csrf_token %}

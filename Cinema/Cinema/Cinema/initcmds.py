@@ -1,18 +1,3 @@
-#credenziali superuser:
-#Username: admin
-#Email: admin@admin.com
-#Password: admin123!
-
-#credenziali utenti Clienti
-#Username: utente1              Username: utente2           Username: utente3
-#Password: Cinema123!           Password: Cinema123!        Password: Cinema123!
-
-#credenziali utenti Gestori
-#Username: gestore1             Username: gestore2          Username: gestore3
-#Password: Cinema123!           Password: Cinema123!        Password: Cinema123!
-# Gli utenti sopra elencati sono stati creati e utilizzati al fine di testare le funzionalità dell'applicazione  
-
-
 from gestione.models import Utente, Film, Proiezione, Prenotazione
 import os
 from django.core.files import File
@@ -165,7 +150,7 @@ def init_db():
                     proiezioni_aggiunte += 1
 
 
-    # Debugging output
+    # Debugging output: verifico che siano state create le proiezioni correttamente
     for sala, proiezioni in proiezioni_per_sala.items():
         print(f"Proiezioni in Sala {sala}: {proiezioni}")
 

@@ -32,7 +32,6 @@ class FilmListView(ListView):
         filter_value = self.request.GET.get('filter_value', None)
         filter_date = self.request.GET.get('filter_date', None)
 
-        #if filter_category:
         if filter_category == 'genere' and filter_value:
             queryset = queryset.filter(genere=filter_value)
         elif filter_category == 'extra' and filter_value:
@@ -50,7 +49,6 @@ class FilmListView(ListView):
                 # Filtriamo i film per includere solo quelli con proiezioni nella data selezionata
                 queryset = queryset.filter(id__in=film_ids_with_projections)
             except ValueError:
-                #queryset = queryset.none()
                 print("Problemi nel filtraggio per data")
         return queryset       
 
@@ -180,7 +178,6 @@ def prenota_proiezione(request, proiezione_id):
             film_id = proiezione.film.pk
             data = filter_date if filter_date else proiezione.data
             next_url = build_redirect_url('gestione:film_proiezioni_per_data', {'film_id': film_id, 'data': data}, filter_date)
-            #next_url = f"{reverse('gestione:film_proiezioni_per_data', kwargs={'film_id': film_id, 'data': data})}?filter_date={data}"
         elif 'lista_proiezioni_per_data' in next_url:
             film_id = proiezione.film.pk
             next_url = f"{reverse('gestione:lista_proiezioni_per_data', kwargs={'pk': film_id})}?filter_date={filter_date}"
@@ -188,7 +185,7 @@ def prenota_proiezione(request, proiezione_id):
             film_id = proiezione.film.pk
             next_url = reverse('gestione:proiezioni_film', kwargs={'pk': film_id})
     else:
-        next_url = reverse('gestione:home')  # Default redirection to home if next is not provided
+        next_url = reverse('gestione:home')  # Redirezione di default alla home se next non è fornito
 
     # Controllo se ci sono posti disponibili
     if proiezione.posti_disponibili <= 0:
