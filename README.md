@@ -1,6 +1,4 @@
-Progetto di Tecnologie Web di Alice Torsani,
-
- matricola 164915
+Progetto di Tecnologie Web di Alice Torsani, matricola 164915
 
 Gestione sistema di prenotazioni di un cinema
 
@@ -8,7 +6,7 @@ Il sistema permette di utilizzare un servizio di prenotazioni e visualizzazione 
 
 Nella cartella Documentazione si può trovare tutta la documentazione allegata al progetto, in particolare il file Tesina.pdf espone una panoramica degli aspetti principali legati alla documentazione del sistema.
 
-La cartella Cinema contiene tutto l'applicativo. 
+La cartella Cinema contiene tutto l'applicativo.
 
 Prerequisiti
 
@@ -85,3 +83,4 @@ Installato con: pip install crispy-bootstrap4.
 django-braces è una libreria di terze parti per Django che fornisce una serie di mixins riutilizzabili, progettati per semplificare le operazioni comuni nelle view class-based di Django (CBV). La ho utilizzata per le view per i soli utenti gestori per verificare che gli utenti che tentavano di eseguire le operazioni associate a quelle view appartenessero al gruppo dei gestori e per negare tali funzionalità agli utenti che non fanno parte di tale gruppo. Le funzionalità principali che ho utilizzato sono state due mixins appartenenti agli Access Mixins: LoginRequiredMixin, che garantisce che l'utente sia autenticato prima di poter accedere alla view, e UserPassesTestMixin, che permette di definire una funzione di test personalizzata che deve restituire True affinché l'utente possa accedere alla view. Ho incluso la libreria con 'from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin' e ho usato le sue funzionalità con 'class CreateFilmView(LoginRequiredMixin, UserPassesTestMixin, CreateView)' nelle view interessate.
 
 Installato con: pip install django-braces.
+
