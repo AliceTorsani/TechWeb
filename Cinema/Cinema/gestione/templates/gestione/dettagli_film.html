@@ -21,7 +21,16 @@
             <p><strong>3D:</strong> {% if object.in_3D %}Previsto{% else %}Non previsto{% endif %}</p>
             <p><strong>Lingua inglese:</strong> {% if object.in_inglese %}Prevista{% else %}Non prevista{% endif %}</p>
         </div>
+        <div class="card-footer">
+            <button class="btn btn-primary" onclick="goBack()">Torna indietro</button>
+        </div>
     </div>
 </div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
   
 {% endblock %}
