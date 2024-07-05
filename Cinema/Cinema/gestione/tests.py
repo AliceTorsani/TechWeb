@@ -200,11 +200,15 @@ class PrenotaProiezioneViewTest(TestCase):
         )
 
     def test_accesso_non_autorizzato(self):
+        #Eseguo una richiesta GET alla view di prenotazione di una proiezione
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        #Verifico che la risposta sia un reindirizzamento alla pagina di login con il parametro next corretto
         self.assertRedirects(response, f'/login/?auth=notok&next=/gestione/prenota_proiezione/{self.proiezione.pk}/')
 
     def test_proiezione_inesistente(self):
+        #Login con l'utente di test
         self.client.login(username='testuser', password='12345')
+        #Richiesta GET alla view di prenotazione di una proiezione con un ID inesistente 
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[999999])) # ID inesistente
         self.assertEqual(response.status_code, 404)
 
@@ -215,37 +219,49 @@ class PrenotaProiezioneViewTest(TestCase):
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(str(messages[0]), 'Non ci sono posti disponibili per questa proiezione.')
+        #Controllo che l'utente venga reindirizzato alla homepage
         self.assertRedirects(response, reverse('gestione:home'))
 
     def test_prenotazione_riuscita(self):
         self.client.login(username='testuser', password='12345')
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        #Verifico che l'utente venga reindirizzato correttamente alla homepage dopo aver completato la prenotazione 
         self.assertRedirects(response, reverse('gestione:home'))
+        #Aggiorno la proiezione dal database per ottenere i dati aggiornati
         self.proiezione.refresh_from_db()
         self.assertEqual(self.proiezione.posti_disponibili, 9)
+        #Verifico che sia stata creata correttamente una prenotazione nel database 
         self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(str(messages[0]), 'Prenotazione effettuata con successo!')
 
     def test_prenotazione_con_next_lista_proiezioni(self):
         self.client.login(username='testuser', password='12345')
+        #Costruisco l'URL di reindirizzamento per la lista delle proiezioni di un film
         next_url = reverse('gestione:lista_proiezioni_per_data', args=[self.film.pk])
+        #Eseguo una richiesta GET alla view di prenotazione di una proiezione includendo next nell'URL
         response = self.client.get(f'{reverse("gestione:prenota_proiezione", args=[self.proiezione.pk])}?next={next_url}&filter_date={self.data}')
+        #Verifico che l'utente venga reindirizzato correttamente alla lista delle proiezioni di un film 
         self.assertRedirects(response, next_url)
         self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
 
     def test_prenotazione_con_next_proiezioni_film(self):
         self.client.login(username='testuser', password='12345')
+        #Costruisco l'URL di reindirizzamento per le proiezioni di un film
         next_url = reverse('gestione:proiezioni_film', args=[self.film.pk])
+        #Eseguo una richiesta GET alla view di prenotazione di una proiezione, includendo next nell'URL
         response = self.client.get(f'{reverse("gestione:prenota_proiezione", args=[self.proiezione.pk])}?next={next_url}')
+        #Verifico che l'utente venga reindirizzato correttamente alle proiezioni di un film 
         self.assertRedirects(response, next_url)
         self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
 
     def test_prenotazione_multiple_per_utente(self):
         self.client.login(username='testuser', password='12345')
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        #Verifico che l'utente venga reindirizzato correttamente alla homepage dopo aver completato la prima prenotazione
         self.assertRedirects(response, reverse('gestione:home'))
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        #Verifico che l'utente venga reindirizzato correttamente alla homepage dopo aver completato la seconda prenotazione
         self.assertRedirects(response, reverse('gestione:home'))
         self.assertEqual(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).count(), 2)
 
@@ -276,13 +292,18 @@ class PrenotaProiezioneViewTest(TestCase):
 
     def test_prenotazione_con_film_proiezioni_per_data_con_filter_date(self):
         self.client.login(username='testuser', password='12345')
+        #Costruisco l'URL di reindirizzamento per le proiezioni di un film in una data specifica
         next_url = reverse('gestione:film_proiezioni_per_data', kwargs={'film_id': self.film.pk, 'data': self.data})
+        #Eseguo una richiesta GET alla view di prenotazione di una proiezione includendo next e filter_date nell'URL
         response = self.client.get(f'{reverse("gestione:prenota_proiezione", args=[self.proiezione.pk])}?next={next_url}&filter_date={self.data}')
+        #Verifico che l'utente venga reindirizzato correttamente alla pagina delle proiezioni di un film in una data specifica 
         self.assertRedirects(response, next_url)
+        #Verifico che sia stata creata correttamente una prenotazione nel database 
         self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
 
     def test_prenotazione_senza_next_url(self):
         self.client.login(username='testuser', password='12345')
         response = self.client.get(reverse('gestione:prenota_proiezione', args=[self.proiezione.pk]))
+        #Verifico che l'utente venga reindirizzato correttamente alla homepage dopo aver completato con successo la prenotazione
         self.assertRedirects(response, reverse('gestione:home'))
         self.assertTrue(Prenotazione.objects.filter(utente=self.user, proiezione=self.proiezione).exists())
