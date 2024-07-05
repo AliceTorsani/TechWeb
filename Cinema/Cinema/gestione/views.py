@@ -217,7 +217,7 @@ def film_consigliati_view(request):
     film_consigliati = utente.get_film_consigliati()
     return render(request, 'gestione/film_consigliati.html', {'film_consigliati': film_consigliati})
 
-#Views per soli Gestori
+#Views per soli Gestori e Admin
 class CreateFilmView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     group_required = ["Gestori"]
     title = "Aggiungi un film al cinema"
@@ -231,7 +231,8 @@ class CreateFilmView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return response
     
     def test_func(self):
-        return self.request.user.groups.filter(name='Gestori').exists()
+        # Controlla se l'utente appartiene al gruppo "Gestori" o se è un superuser
+        return self.request.user.groups.filter(name='Gestori').exists() or self.request.user.is_superuser
 
 class CreateProiezioneView(CreateFilmView):
     title = "Aggiungi una Proiezione ad un film"
